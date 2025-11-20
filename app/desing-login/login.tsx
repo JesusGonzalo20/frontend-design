@@ -1,31 +1,33 @@
 "use client";
 import api from "../../src/services/apiService";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const router = useRouter();
 
   const handleLogin = async () => {
     try {
       const res: any = await api.post("/auth/login", { username, password });
 
-      // ajusta esto según lo que devuelva tu backend:
       const token = res.token || res.access_token;
 
       if (!token) {
-        alert("El backend respondió pero no envió token");
+        alert("No se recibió token desde el backend");
         return;
       }
 
-      // Guardamos el token donde ApiService lo buscará después
+      // guardar token (puedes usar safeSession también si quieres)
       sessionStorage.setItem("token", token);
 
-      alert("Login correcto");
-      // aquí puedes hacer router.push('/lo-que-siga');
-    } catch (e: any) {
-      console.error(e);
-      alert("Error en login: " + (e.message ?? ""));
+      // 👇 AQUÍ redirigimos al menú
+      router.push("/dashboard");
+
+    } catch (err: any) {
+      console.error(err);
+      alert("Credenciales incorrectas o error en el servidor");
     }
   };
 
