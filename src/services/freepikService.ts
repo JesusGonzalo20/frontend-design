@@ -1,6 +1,53 @@
 // src/services/freepikService.ts
 
-export async function downloadFreepikFile(url: string) {
+export interface FreepikOption {
+  id: string;
+  label: string;
+}
+
+/**
+ * Obtiene las opciones de descarga disponibles para una URL de Freepik
+ * (por ejemplo: 4K / 1080p / 720p / JPG / PNG / PSD).
+ */
+export async function getFreepikOptions(
+  url: string,
+): Promise<FreepikOption[]> {
+  if (!url.trim()) {
+    throw new Error('La URL de Freepik está vacía.');
+  }
+
+  const baseUrl =
+    process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
+
+  const token =
+    (typeof window !== 'undefined' && sessionStorage.getItem('token')) || '';
+
+  const response = await fetch(`${baseUrl}/freepik/options`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+    body: JSON.stringify({ url }),
+  });
+
+  if (!response.ok) {
+    const text = await response.text().catch(() => '');
+    console.error(
+      'Error obteniendo opciones Freepik:',
+      response.status,
+      text,
+    );
+    throw new Error('Vuelve a intentarlo');
+  }
+
+  return response.json();
+}
+
+export async function downloadFreepikFile(
+  url: string,
+  optionId?: string, // 🔹 NUEVO parámetro opcional
+) {
   if (!url.trim()) {
     throw new Error('La URL de Freepik está vacía.');
   }
@@ -17,14 +64,14 @@ export async function downloadFreepikFile(url: string) {
       'Content-Type': 'application/json',
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
     },
-    body: JSON.stringify({ url }),
+    // 🔹 ANTES: body: JSON.stringify({ url })
+    // 🔹 AHORA: mandamos también optionId (si viene)
+    body: JSON.stringify({ url, optionId }),
   });
 
   if (!response.ok) {
-    // Antes: mostrabas todo el JSON feo al usuario
     const text = await response.text();
     console.error('Error en descarga Freepik:', response.status, text);
-    // Ahora: solo mensaje simple para el usuario
     throw new Error('Vuelve a intentarlo');
   }
 

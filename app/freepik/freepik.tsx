@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { isAuthenticated } from "../../src/utils/auth";
 import { downloadFreepikFile } from "../../src/services/freepikService";
+import FreepikDownloader from "./../freepik/componets/FreepikDownloader";
 
 export default function FreepikView() {
   const router = useRouter();
@@ -11,6 +12,9 @@ export default function FreepikView() {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [selectedOptionId, setSelectedOptionId] = useState<string | undefined>( // 👈 agregado
+    undefined
+  );
 
   useEffect(() => {
     if (!isAuthenticated()) {
@@ -30,7 +34,7 @@ export default function FreepikView() {
 
     try {
       setLoading(true);
-      await downloadFreepikFile(url);
+      await downloadFreepikFile(url, selectedOptionId); // 👈 ahora pasa la opción
       setMessage("Descarga iniciada correctamente.");
     } catch (err: any) {
       console.error(err);
@@ -61,13 +65,18 @@ export default function FreepikView() {
             <label className="block text-xs font-medium text-slate-400 mb-1">
               URL de Freepik
             </label>
-          <input
-            className="w-full rounded-xl bg-slate-900 border border-slate-700 px-4 py-2 text-sm outline-none focus:border-indigo-400 focus:ring-1 focus:ring-indigo-400"
-            placeholder="https://www.freepik.es/..."
-            value={url}
-            onChange={(e) => setUrl(e.target.value)}
-          />
+            <input
+              className="w-full rounded-xl bg-slate-900 border border-slate-700 px-4 py-2 text-sm outline-none focus:border-indigo-400 focus:ring-1 focus:ring-indigo-400"
+              placeholder="https://www.freepik.es/..."
+              value={url}
+              onChange={(e) => setUrl(e.target.value)}
+            />
           </div>
+
+          <FreepikDownloader
+            url={url}
+            onOptionChange={setSelectedOptionId}
+          />
 
           <button
             type="submit"
