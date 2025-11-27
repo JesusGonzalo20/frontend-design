@@ -21,8 +21,11 @@ export async function downloadFreepikFile(url: string) {
   });
 
   if (!response.ok) {
+    // Antes: mostrabas todo el JSON feo al usuario
     const text = await response.text();
-    throw new Error(`Error ${response.status}: ${text}`);
+    console.error('Error en descarga Freepik:', response.status, text);
+    // Ahora: solo mensaje simple para el usuario
+    throw new Error('Vuelve a intentarlo');
   }
 
   const blob = await response.blob();
