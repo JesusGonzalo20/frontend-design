@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { isAuthenticated } from "../../src/utils/auth";
 import { downloadFreepikFile } from "../../src/services/freepikService";
-import FreepikDownloader from "./../freepik/componets/FreepikDownloader";
 
 export default function FreepikView() {
   const router = useRouter();
@@ -72,12 +71,6 @@ export default function FreepikView() {
               onChange={(e) => setUrl(e.target.value)}
             />
           </div>
-
-          <FreepikDownloader
-            url={url}
-            onOptionChange={setSelectedOptionId}
-          />
-
           <button
             type="submit"
             disabled={loading}
